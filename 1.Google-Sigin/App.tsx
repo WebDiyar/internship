@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { auth, provider } from './config';
+import React, { useEffect, useState } from 'react';
+import { auth } from './config';
 import { signInWithPopup, GoogleAuthProvider, UserCredential } from '@firebase/auth';
 import { View, Button, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
