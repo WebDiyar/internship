@@ -12,4 +12,6 @@ Inside the - `"proofs" folder`- there are screenshots of the application
 2) `npm install @react-native-async-storage/async-storage`
 3) `npx expo install react-native-web react-dom @expo/metro-runtime`
 
-Run - `npm run web`
+# Install project
+1) `npm i`
+2) `ctrl+shift+P` --- 
