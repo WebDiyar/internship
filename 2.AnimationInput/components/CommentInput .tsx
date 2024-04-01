@@ -1,11 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, TextInput, TouchableOpacity, View } from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Animated, Dimensions, TextInput, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Entypo} from '@expo/vector-icons';
+import {FontAwesome} from '@expo/vector-icons';
 
 export default function CommentInput() {
     const [value, setValue] = useState<string>('');
-    const { width } = Dimensions.get('window');
+    const {width} = Dimensions.get('window');
 
     const animatedSendScale = useRef(new Animated.Value(0)).current;
     const animatedMicScale = useRef(new Animated.Value(1)).current;
@@ -60,7 +62,7 @@ export default function CommentInput() {
                 <TextInput
                     value={value}
                     onChangeText={handleChange}
-                    style={{ height: '100%', paddingHorizontal: 10, fontSize: 18 }}
+                    style={{height: '100%', paddingHorizontal: 10, fontSize: 18}}
                     multiline
                     placeholder="Enter message..."
                 />
@@ -80,15 +82,14 @@ export default function CommentInput() {
                     elevation: 2,
                 }}
             >
-                {value.trim().length > 0  ? (
-                    <Animated.View style={{ transform: [{ scale: animatedSendScale }] }}>
-                        <Ionicons size={25} name="md-send-sharp" color="white" />
-                    </Animated.View>
-                ) : (
-                    <Animated.View style={{ transform: [{ scale: animatedMicScale }] }}>
-                        <Icon size={25} name="mic" color="white" />
-                    </Animated.View>
-                )}
+
+
+                <Animated.View style={{transform: [{scale: animatedMicScale}]}}>
+                    {value.trim().length > 0 ? (<Entypo name="paper-plane" size={24} color="white"/>
+                    ) : <FontAwesome name="microphone" size={24} color="white"/>
+                    }
+                </Animated.View>
+
             </TouchableOpacity>
         </View>
     );
