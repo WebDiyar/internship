@@ -84,11 +84,21 @@ export default function CommentInput() {
             >
 
 
-                <Animated.View style={{transform: [{scale: animatedMicScale}]}}>
+                {/* <Animated.View style={{transform: [{scale: animatedMicScale}]}}>
                     {value.trim().length > 0 ? (<Entypo name="paper-plane" size={24} color="white"/>
                     ) : <FontAwesome name="microphone" size={24} color="white"/>
                     }
-                </Animated.View>
+                </Animated.View> */}
+
+                {value.trim().length > 0 ? (
+                    <Animated.View style={{ transform: [{ scale: animatedSendScale }] }} >
+                        <Entypo name="paper-plane" size={24} color="white" />
+                    </Animated.View>
+                ) :
+                   <Animated.View style={{ transform: [{ scale: animatedMicScale }] }}>
+                        <FontAwesome name="microphone" size={24} color="white" />
+                    </Animated.View>
+                }
 
             </TouchableOpacity>
         </View>
