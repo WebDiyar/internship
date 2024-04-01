@@ -10,27 +10,27 @@ export default function CommentInput() {
     const animatedSendScale = useRef(new Animated.Value(0)).current;
     const animatedMicScale = useRef(new Animated.Value(1)).current;
 
+    const isEmpty = value.trim() === ""
+
     useEffect(() => {
-        const timer = setTimeout(() => {
-            animateIcons();
-        }, 100); // Задержка в 100 миллисекунд
 
-        return () => clearTimeout(timer); // Очистка таймера при размонтировании
-    }, [value]);
+        animateIcons(isEmpty);
 
-    const animateIcons = () => {
-        if (value.trim()) {
-            Animated.timing(animatedSendScale, {
-                toValue: 1,
-                duration: 100,
-                useNativeDriver: true,
-            }).start(() => animatedMicScale.setValue(0));
-        } else {
+    }, [isEmpty]);
+
+    const animateIcons = (param:boolean) => {
+        if (param) {
             Animated.timing(animatedMicScale, {
                 toValue: 1,
                 duration: 100,
                 useNativeDriver: true,
             }).start(() => animatedSendScale.setValue(0));
+        } else {
+            Animated.timing(animatedSendScale, {
+                toValue: 1,
+                duration: 100,
+                useNativeDriver: true,
+            }).start(() => animatedMicScale.setValue(0));
         }
     };
 
