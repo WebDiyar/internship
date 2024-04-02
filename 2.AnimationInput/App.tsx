@@ -6,9 +6,9 @@ export default function App() {
   return (
     <>
       <ImageBackground
-        style={{ flex: 1, opacity: 0.2 }}
+        style={{ flex: 1, opacity: 0.2, backgroundColor: 'black' }}
         source={{
-          uri: 'https://image.freepik.com/free-vector/abstract-geometric-pattern-background_1319-242.jpg',
+          
         }}
       >
         <ScrollView></ScrollView>
