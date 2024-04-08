@@ -8,60 +8,57 @@ export default function CommentInput() {
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [recordingDuration, setRecordingDuration] = useState<number>(0);
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
-    const [permission, setPermission] = useState<boolean | null>(null);
+    const [permission, setPermission] = useState<Audio.PermissionStatus | null>(null);
     const { width } = Dimensions.get('window');
 
-    const animatedSendScale = useRef(new Animated.Value(0)).current;
-    const animatedMicScale = useRef(new Animated.Value(1)).current;
-    const animatedRecordingScale = useRef(new Animated.Value(1)).current;
+    const animatedSendScale = useRef<Animated.Value>(new Animated.Value(1)).current;
+    const animatedMicScale = useRef<Animated.Value>(new Animated.Value(1)).current;
+    const animatedButtonWidth = useRef<Animated.Value>(new Animated.Value(45)).current;
+    const animatedButtonHeight = useRef<Animated.Value>(new Animated.Value(45)).current;
+    const animatedButtonRadius = useRef<Animated.Value>(new Animated.Value(24)).current;
+    const animatedButtonY = useRef<Animated.Value>(new Animated.Value(0)).current;
 
     const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         (async () => {
             const { status } = await Audio.requestPermissionsAsync();
-            setPermission(status === 'granted');
+            setPermission(status === 'granted' ? status : null);
         })();
     }, []);
 
     useEffect(() => {
-        animateIcons(value.trim() === '');
+        if (value.trim().length > 0) {
+            Animated.spring(animatedSendScale, {
+                toValue: 1,
+                useNativeDriver: true,
+            }).start();
+        }
     }, [value]);
 
-    useEffect(() => {
-        return () => {
-            if (recordingIntervalRef.current) {
-                clearInterval(recordingIntervalRef.current);
-            }
-        };
-    }, []);
-
-    const animateRecording = () => {
-        Animated.timing(animatedRecordingScale, {
-            toValue: isRecording ? 0 : 1,
-            duration: 100,
-            useNativeDriver: true,
-        }).start();
-    };
-
-    const animateIcons = (isEmpty: boolean) => {
-        if (isEmpty) {
-            Animated.timing(animatedMicScale, {
-                toValue: 1,
-                duration: 100,
+    const animateButtonExpansion = () => {
+        Animated.parallel([
+            Animated.timing(animatedButtonWidth, {
+                toValue: 70,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonHeight, {
+                toValue: 70,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonRadius, {
+                toValue: 50,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonY, {
+                toValue: 0,
+                duration: 300,
                 useNativeDriver: true,
-            }).start(() => animatedSendScale.setValue(0));
-        } else {
-            Animated.timing(animatedSendScale, {
-                toValue: 1,
-                duration: 100,
-                useNativeDriver: true,
-            }).start(() => animatedMicScale.setValue(0));
-        }
-    };
-
-    const handleChange = (text: string) => {
-        setValue(text);
+            }),
+        ]).start();
     };
 
     const startRecording = async () => {
@@ -75,38 +72,73 @@ export default function CommentInput() {
             playsInSilentModeIOS: true,
         });
 
-        const { recording } = await Audio.Recording.createAsync(
+        const newRecording = await Audio.Recording.createAsync(
             Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
         );
-
-        setRecording(recording);
+        setRecording(newRecording.recording!);
 
         recordingIntervalRef.current = setInterval(() => {
-            setRecordingDuration((prevDuration) => prevDuration + 1);
+            setRecordingDuration(prevDuration => prevDuration + 1);
         }, 1000);
 
         setIsRecording(true);
-        animateRecording();
+        animateButtonExpansion();
+        // Add animation logic for microphone button here
+        Animated.parallel([
+            Animated.timing(animatedMicScale, {
+                toValue: 0.8,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start();
     };
 
     const stopRecording = async () => {
         if (!recording) return;
 
-        setIsRecording(false);
-        animateRecording();
-
-        clearInterval(recordingIntervalRef.current);
+        clearInterval(recordingIntervalRef.current!);
         setRecordingDuration(0);
-
         await recording.stopAndUnloadAsync();
         const uri = recording.getURI();
         console.log('Recording stopped and stored at', uri);
+
+        setIsRecording(false);
         setRecording(null);
+        resetButtonSize();
+        // Add animation logic for microphone button here
+        Animated.parallel([
+            Animated.timing(animatedMicScale, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start();
     };
 
-    const handleRecord = startRecording;
-
-    const handleStopRecording = stopRecording;
+    const resetButtonSize = () => {
+        Animated.parallel([
+            Animated.timing(animatedButtonWidth, {
+                toValue: 45,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonHeight, {
+                toValue: 45,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonRadius, {
+                toValue: 50,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonY, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    };
 
     return (
         <View
@@ -133,10 +165,10 @@ export default function CommentInput() {
                         width: 200,
                         flex: 1,
                         paddingHorizontal: 10,
-                        height: 50
+                        height: 50,
                     }}
                 >
-                    <MaterialIcons name="cancel" size={24} color="red" onPress={handleStopRecording} />
+                    <MaterialIcons name="cancel" size={24} color="red" onPress={stopRecording} />
                     <Text
                         style={{
                             flex: 1,
@@ -150,7 +182,7 @@ export default function CommentInput() {
             ) : (
                 <TextInput
                     value={value}
-                    onChangeText={handleChange}
+                    onChangeText={text => setValue(text)}
                     style={{
                         backgroundColor: 'white',
                         borderRadius: 25,
@@ -164,43 +196,49 @@ export default function CommentInput() {
                 />
             )}
 
-            <TouchableOpacity
-                onPress={() => {
-                    if (isRecording) {
-                        handleStopRecording();
-                    } else {
-                        if (value.trim().length > 0) {
-                            console.log('Message sent');
-                        } else {
-                            handleRecord();
-                        }
-                    }
-                }}
+            <Animated.View
                 style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: 'green',
-                    borderRadius: 24,
+                    borderRadius: animatedButtonRadius,
                     elevation: 2,
-                    width: 45,
-                    height: 45,
+                    width: animatedButtonWidth,
+                    height: animatedButtonHeight,
                     marginLeft: 10,
+                    transform: [{ translateY: animatedButtonY }],
                 }}
             >
-                {value.trim().length > 0 ? (
-                    <Animated.View style={{ transform: [{ scale: animatedSendScale }] }}>
-                        <Entypo name="paper-plane" size={24} color="white" />
-                    </Animated.View>
-                ) : isRecording ? (
-                    <Animated.View style={{ transform: [{ scale: animatedRecordingScale }] }}>
-                        <Entypo name="paper-plane" size={24} color="white" />
-                    </Animated.View>
-                ) : (
-                    <Animated.View style={{ transform: [{ scale: animatedMicScale }] }}>
-                        <FontAwesome name="microphone" size={24} color="white" />
-                    </Animated.View>
-                )}
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        if (isRecording) {
+                            stopRecording();
+                        } else {
+                            if (value.trim().length > 0) {
+                                console.log('Message sent');
+                            } else {
+                                startRecording();
+                            }
+                        }
+                    }}
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: '100%',
+                        height: '100%',
+                    }}
+                >
+                    {value.trim().length > 0 ? (
+                        <Animated.View style={{ transform: [{ scale: animatedSendScale }] }}>
+                            <Entypo name="paper-plane" size={24} color="white" />
+                        </Animated.View>
+                    ) : (
+                        <Animated.View style={{ transform: [{ scale: animatedMicScale }] }}>
+                            <FontAwesome name="microphone" size={24} color="white" />
+                        </Animated.View>
+                    )}
+                </TouchableOpacity>
+            </Animated.View>
         </View>
     );
 }

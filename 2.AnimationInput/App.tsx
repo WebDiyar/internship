@@ -11,7 +11,7 @@ export default function App() {
           
         }}
       >
-        <ScrollView></ScrollView>
+      <ScrollView></ScrollView>
       </ImageBackground>
       <CommentInput/>
     </>
