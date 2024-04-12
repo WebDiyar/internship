@@ -210,15 +210,16 @@ export default function CommentInput() {
                 }}
             >
                 <TouchableOpacity
-                    onPress={() => {
+                    onLongPress={() => {
+                        // Only start recording if not already recording and no text is entered
+                        if (!isRecording && value.trim().length === 0) {
+                            startRecording();
+                        }
+                    }}
+                    onPressOut={() => {
+                        // Stop recording when the button press is released
                         if (isRecording) {
                             stopRecording();
-                        } else {
-                            if (value.trim().length > 0) {
-                                console.log('Message sent');
-                            } else {
-                                startRecording();
-                            }
                         }
                     }}
                     style={{
