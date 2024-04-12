@@ -2,15 +2,22 @@ import { onAuthStateChanged, signOut, Auth, User } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { auth } from "../firebase";
+import { useLocation } from 'react-router-dom';
 
 const AuthDetails: React.FC = () => {
     const [authUser, setAuthUser] = useState<null | User>(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
+        const uid = location.state?.uid; // Get UID from the state
+        if (uid) {
+            // Use UID to fetch user details or perform other actions
+        }
+
         const listen = onAuthStateChanged(auth as Auth, (user) => {
             if (user) {
-                setAuthUser(user);
+                setAuthUser(user); // Only set the user, do not navigate away
             } else {
                 setAuthUser(null);
             }
@@ -18,7 +25,7 @@ const AuthDetails: React.FC = () => {
         return () => {
             listen();
         };
-    }, [authUser]);
+    }, [location]);
 
     const userSignOut = () => {
         signOut(auth as Auth)
@@ -33,7 +40,7 @@ const AuthDetails: React.FC = () => {
         <div>
             {authUser ? (
                 <>
-                    <p style={{marginTop: 10}}>{`Success! Signed In -  ${authUser.email}`}</p>
+                    <p style={{ marginTop: 10 }}>{`Success! Signed In -  ${authUser.email}`}</p>
                     <button onClick={userSignOut} style={{ marginTop: 10 }}>Sign Out</button>
                 </>
             ) : (
