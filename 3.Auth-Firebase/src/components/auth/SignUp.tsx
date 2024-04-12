@@ -11,6 +11,7 @@ const SignUp = () => {
 
     const signUp = async (e: FormEvent) => {
         e.preventDefault();
+
         try {
             const result = await createUserWithEmailAndPassword(auth as Auth, email, password);
             console.log("SignUp Success:", result);

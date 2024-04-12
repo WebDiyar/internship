@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, Auth } from "firebase/auth";
+import { Auth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState, FormEvent } from "react";
 import { useNavigate } from 'react-router-dom';
 import { auth } from "../../firebase";
@@ -15,10 +15,10 @@ const SignIn = () => {
 
         try {
             const result = await signInWithEmailAndPassword(auth as Auth, email, password);
-            console.log("SignIn Success:", result);
+            console.log("SignIn Success: ", result);
             navigate(`/dashboard/${result.user.uid}`);
         } catch (error: unknown) { 
-            console.error("SignIn Error:", error);
+            console.error("SignIn Error: ", error);
 
             if (error instanceof FirebaseError) {
                 if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
