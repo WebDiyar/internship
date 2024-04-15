@@ -2,6 +2,7 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 interface IFirebaseconfig {
     apiKey: string;
@@ -27,3 +28,4 @@ const firebaseConfig: IFirebaseconfig = {
 export const app: FirebaseApp = initializeApp(firebaseConfig);
 export const analytics: Analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const db = getFirestore(app);

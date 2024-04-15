@@ -1,8 +1,10 @@
+// SignIn.tsx
 import { Auth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState, FormEvent } from "react";
 import { useNavigate } from 'react-router-dom';
-import { auth } from "../../firebase";
+import { auth, db} from "../../firebase";
 import { FirebaseError } from "firebase/app";
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignIn = () => {
     const [email, setEmail] = useState<string>("");
@@ -14,10 +16,17 @@ const SignIn = () => {
         e.preventDefault();
 
         try {
-            const result = await signInWithEmailAndPassword(auth as Auth, email, password);
-            console.log("SignIn Success: ", result);
-            navigate(`/dashboard/${result.user.uid}`);
-        } catch (error: unknown) { 
+            const userCredential = await signInWithEmailAndPassword(auth as Auth, email, password);
+            console.log("SignIn Success: ", userCredential);
+            
+            if (userCredential.user) {
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    lastSignIn: new Date().toISOString(),
+                }, { merge: true });
+            }
+
+            navigate(`/`);
+        } catch (error: unknown) {
             console.error("SignIn Error: ", error);
 
             if (error instanceof FirebaseError) {
@@ -29,6 +38,7 @@ const SignIn = () => {
             }
         }
     };
+
 
     return (
         <div className="sign-in-container">
