@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Auth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { useDispatch } from 'react-redux';
+import { clearUser } from '../store/authSlice';
 
 interface UserState {
     email: string;
@@ -12,12 +14,14 @@ interface UserState {
 
 const Main = () => {
     const [user, setUser] = useState<UserState | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const unsubscribeFromFirestore = useRef<() => void>(() => { });
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth as Auth, async (userAuth) => {
+        const unsubscribeAuth = onAuthStateChanged(auth as Auth, (userAuth) => {
             if (userAuth) {
-                const unsubFromFirestore = onSnapshot(doc(db, "users", userAuth.uid), (doc) => {
+                const unsubscribe = onSnapshot(doc(db, "users", userAuth.uid), (doc) => {
                     const userData = doc.data();
                     if (userData) {
                         setUser({
@@ -25,33 +29,38 @@ const Main = () => {
                             uid: userData.uid,
                             blank: userData.blank,
                         });
-                        setLoading(false);
                     }
+                    setLoading(false);
                 });
-
-                return () => {
-                    unsubFromFirestore();
-                    unsubscribe();
-                };
+                unsubscribeFromFirestore.current = unsubscribe;
             } else {
                 setUser(null);
                 setLoading(false);
-                unsubscribe();
             }
         });
+
+        return () => {
+            unsubscribeAuth();
+            unsubscribeFromFirestore.current();
+        };
     }, []);
 
     const handleSignOut = async () => {
-        if (auth.currentUser) {
-            const unsubFromFirestore = onSnapshot(doc(db, "users", auth.currentUser.uid), () => { });
-            await unsubFromFirestore();
+        // Call the ref's current function to ensure listener is unsubscribed
+        // отписки от Firestore, чтобы убедиться, что слушатель деактивирован
+        unsubscribeFromFirestore.current();
+    
+        try {
+            await signOut(auth);
+            dispatch(clearUser());
+        } catch (error) {
+            console.error("Sign Out Error:", error);
         }
-        await signOut(auth);
     };
 
     return (
         <div>
-            {loading ? ( 
+            {loading ? (
                 <p>Loading...</p>
             ) : (
                 <>
@@ -62,7 +71,7 @@ const Main = () => {
                         <div>
                             <p>Email: {user.email}</p>
                             <p>Uid: {user.uid}</p>
-                            <p style={{ marginBottom: 10 }}>Blank: {user?.blank}</p>
+                            <p style={{ marginBottom: 10 }}>Blank: {user.blank}</p>
                             <button onClick={handleSignOut}>Sign Out</button>
                         </div>
                     ) : (
@@ -77,6 +86,6 @@ const Main = () => {
             )}
         </div>
     );
-}
+};
 
 export default Main;

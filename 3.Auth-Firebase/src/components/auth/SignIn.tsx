@@ -2,15 +2,18 @@
 import { Auth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState, FormEvent } from "react";
 import { useNavigate } from 'react-router-dom';
-import { auth, db} from "../../firebase";
+import { auth, db } from "../../firebase";
 import { FirebaseError } from "firebase/app";
 import { doc, setDoc } from 'firebase/firestore';
+import { setUser } from "../../store/authSlice";
+import { useDispatch } from "react-redux";
 
 const SignIn = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const signIn = async (e: FormEvent) => {
         e.preventDefault();
@@ -18,8 +21,13 @@ const SignIn = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth as Auth, email, password);
             console.log("SignIn Success: ", userCredential);
-            
+
             if (userCredential.user) {
+                dispatch(setUser({
+                    email: userCredential.user.email,
+                    uid: userCredential.user.uid
+                }));
+                
                 await setDoc(doc(db, "users", userCredential.user.uid), {
                     lastSignIn: new Date().toISOString(),
                 }, { merge: true });
