@@ -7,6 +7,7 @@ import { FirebaseError } from "firebase/app";
 import { doc, setDoc } from 'firebase/firestore';
 import { setUser } from "../../store/authSlice";
 import { useDispatch } from "react-redux";
+import "../../style/signIn.css";
 
 const SignIn = () => {
     const [email, setEmail] = useState<string>("");
@@ -49,24 +50,26 @@ const SignIn = () => {
 
 
     return (
-        <div className="sign-in-container">
-            <form onSubmit={signIn}>
-                <h1 style={{ marginBottom: 10 }}>Log In to your Account</h1>
-                {error && <h1 style={{ color: "red" }}>{error}</h1>}
-                <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Log In</button>
-            </form>
+        <div className="sign-in-wrapper">
+            <div className="sign-in-container">
+                <form onSubmit={signIn}>
+                    <h1>Log In to your Account</h1>
+                    {error && <div style={{ color: "red" }}>{error}</div>}
+                    <input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button type="submit">Log In</button>
+                </form>
+            </div>
         </div>
     );
 };

@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #575d63;
+    color: #333;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.user-text {
+    color: #15ea7c;
+    text-align: center;
+    font-size: 20px;
+}
+
+p {
+    margin: 5px 0;
+}
+
+button {
+    background-color: #4a90e2;
+    color: #15ea7c;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #357ab8;
+}
+
+.user-ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 20px;
+}
+
+nav ul li a {
+    display: block;
+    text-align: center;
+    background: #ffffff;
+    color: darkblue;
+    padding: 10px;
+    font-size: 26px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #e7eff9;
+}
+
+.loading-text {
+    display: grid;
+    justify-self: center;
+    align-self: center;
+    font-size: 26px;
+    color: red;
+}
+.user-info {
+    display: grid;
+    grid-template-rows: auto;
+    justify-content: center;
+    align-content: center;
+    gap: 10px;
+    padding: 20px;
+}
+
+.user-info p{
+    font-size: 20px;
+    color: coral;
+}
+
+@media only screen and (max-width: 600px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .user-text {
+        font-size: 24px;
+    }
+
+    nav ul li a {
+        font-size: 20px;
+    }
+}
+
+@media only screen and (min-width: 1024px) {
+    .user-text {
+        font-size: 28px;
+    }
+
+    nav ul li a {
+        font-size: 28px;
+    }
+}

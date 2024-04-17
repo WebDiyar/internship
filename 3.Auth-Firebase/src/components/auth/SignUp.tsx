@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import { doc, setDoc } from 'firebase/firestore';
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/authSlice";
+import "../../style/signUp.css";
 
 const SignUp = () => {
     const [email, setEmail] = useState<string>("");

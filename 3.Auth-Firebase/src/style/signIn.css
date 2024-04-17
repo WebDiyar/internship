@@ -1,0 +1,112 @@
+.sign-in-wrapper {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    padding: 40px;
+    background-color: #f0f0f0;
+}
+
+.sign-in-container form {
+    display: grid;
+    gap: 10px;
+    max-width: 500px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sign-in-container h1 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.sign-in-container input {
+    padding: 10px 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.sign-in-container button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+@media only screen and (min-width: 1024px) {
+    .sign-in-wrapper {
+        padding: 80px;
+    }
+
+    .sign-in-container form {
+        max-width: none;
+        width: 40vw;
+        padding: 40px;
+        gap: 20px;
+    }
+
+    .sign-in-container input,
+    .sign-in-container button {
+        padding: 15px 40px;
+    }
+
+    .sign-in-container h1 {
+        font-size: 2rem;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .sign-in-wrapper {
+        padding: 20px;
+    }
+
+    .sign-in-container form {
+        width: 100%;
+        padding: 15px;
+        gap: 8px;
+    }
+
+    .sign-in-container h1 {
+        font-size: 1.0rem;
+        margin-bottom: 15px;
+    }
+
+    .sign-in-container input,
+    .sign-in-container button {
+        padding: 12px;
+        font-size: 1.0rem;
+    }
+
+    .sign-in-container button {
+        padding: 12px;
+    }
+}
+
+@media only screen and (max-width: 256px) {
+    .sign-in-wrapper {
+            padding: 15px;
+        }
+    
+        .sign-in-container form {
+            width: 100%;
+            padding: 10px;
+            gap: 8px;
+        }
+    
+        .sign-in-container h1 {
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+    
+        .sign-in-container input,
+        .sign-in-container button {
+            padding: 5px;
+            font-size: 0.8rem;
+        }
+    
+        .sign-in-container button {
+            padding: 10px;
+        }
+}
