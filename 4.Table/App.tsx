@@ -1,12 +1,31 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
-import { format, addDays, parse } from 'date-fns';
+import { format, addDays, parse, isToday as checkIsToday, startOfDay } from 'date-fns';
 
-const startDate = parse('2024-05-12', 'yyyy-MM-dd', new Date());
-const dates = Array.from({ length: 14 }).map((_, index) => addDays(startDate, index));
-const today = parse('2024-05-20', 'yyyy-MM-dd', new Date());
+const generateDates = (startDate: Date): Date[] => {
+  return Array.from({ length: 14 }).map((_, index) => addDays(startDate, index));
+};
 
-const TableRow: React.FC<{ date: Date; isToday: boolean }> = ({ date, isToday }) => {
+const getInitialStartDate = (): Date => {
+  const today = startOfDay(new Date());
+  const initialDate = parse('2024-05-12', 'yyyy-MM-dd', new Date());
+
+  if (today >= initialDate && today <= addDays(initialDate, 13)) {
+    return initialDate;
+  }
+
+  const diffInDays = Math.floor((today.getTime() - initialDate.getTime()) / (1000 * 60 * 60 * 24));
+  const newStartDate = addDays(initialDate, Math.floor(diffInDays / 14) * 14);
+
+  return newStartDate;
+};
+
+interface TableRowProps {
+  date: Date;
+  isToday: boolean;
+}
+
+const TableRow: React.FC<TableRowProps> = ({ date, isToday }) => {
   return (
     <View style={styles.row}>
       <View style={styles.dateCell}>
@@ -15,12 +34,16 @@ const TableRow: React.FC<{ date: Date; isToday: boolean }> = ({ date, isToday })
       </View>
       <TextInput style={styles.input} placeholder="0.00" keyboardType="decimal-pad" />
       <Text style={styles.amount}>$0.00</Text>
-      <TextInput style={styles.workNotes} /> 
+      <TextInput style={styles.workNotes} />
     </View>
   );
 };
 
 const App: React.FC = () => {
+  const today = startOfDay(new Date());
+  const startDate = getInitialStartDate();
+  const dates = generateDates(startDate);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.table}>
@@ -31,7 +54,7 @@ const App: React.FC = () => {
           <Text style={[styles.headerText, styles.notesHeader]}>Work Notes</Text>
         </View>
         {dates.map((date, index) => (
-          <TableRow key={index} date={date} isToday={format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')} />
+          <TableRow key={index} date={date} isToday={checkIsToday(date)} />
         ))}
       </View>
     </ScrollView>
@@ -43,9 +66,8 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
-
   table: {
     minWidth: '70%',
     borderColor: '#ccc',
@@ -58,14 +80,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#f1f1f1',
     paddingVertical: 10,
-
   },
   headerText: {
     fontWeight: 'bold',
     textAlign: 'center',
   },
-
-
   dateHeader: {
     textAlign: 'left',
     paddingLeft: 10,
@@ -84,8 +103,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 7,
   },
-
-
   row: {
     flexDirection: 'row',
     paddingVertical: 10,
