@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { Animated, Dimensions, TextInput, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Entypo, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { IMessage } from 'react-native-gifted-chat';
 
-export default function CommentInput() {
+interface CommentInputProps {
+    onSend: (messages: IMessage[]) => void;
+}
+
+export default function CommentInput({ onSend }: CommentInputProps) {
     const [value, setValue] = useState<string>('');
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [recordingDuration, setRecordingDuration] = useState<number>(0);
@@ -33,33 +38,13 @@ export default function CommentInput() {
                 toValue: 1,
                 useNativeDriver: true,
             }).start();
+        } else {
+            Animated.spring(animatedSendScale, {
+                toValue: 0,
+                useNativeDriver: true,
+            }).start();
         }
     }, [value]);
-
-    const animateButtonExpansion = () => {
-        Animated.parallel([
-            Animated.timing(animatedButtonWidth, {
-                toValue: 70,
-                duration: 300,
-                useNativeDriver: false,
-            }),
-            Animated.timing(animatedButtonHeight, {
-                toValue: 70,
-                duration: 300,
-                useNativeDriver: false,
-            }),
-            Animated.timing(animatedButtonRadius, {
-                toValue: 50,
-                duration: 300,
-                useNativeDriver: false,
-            }),
-            Animated.timing(animatedButtonY, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            }),
-        ]).start();
-    };
 
     const startRecording = async () => {
         if (!permission) {
@@ -83,14 +68,6 @@ export default function CommentInput() {
 
         setIsRecording(true);
         animateButtonExpansion();
-        // Add animation logic for microphone button here
-        Animated.parallel([
-            Animated.timing(animatedMicScale, {
-                toValue: 0.8,
-                duration: 300,
-                useNativeDriver: true,
-            }),
-        ]).start();
     };
 
     const stopRecording = async () => {
@@ -105,12 +82,24 @@ export default function CommentInput() {
         setIsRecording(false);
         setRecording(null);
         resetButtonSize();
-        // Add animation logic for microphone button here
+    };
+
+    const animateButtonExpansion = () => {
         Animated.parallel([
-            Animated.timing(animatedMicScale, {
-                toValue: 1,
+            Animated.timing(animatedButtonWidth, {
+                toValue: 70,
                 duration: 300,
-                useNativeDriver: true,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonHeight, {
+                toValue: 70,
+                duration: 300,
+                useNativeDriver: false,
+            }),
+            Animated.timing(animatedButtonRadius, {
+                toValue: 35,
+                duration: 300,
+                useNativeDriver: false,
             }),
         ]).start();
     };
@@ -128,106 +117,39 @@ export default function CommentInput() {
                 useNativeDriver: false,
             }),
             Animated.timing(animatedButtonRadius, {
-                toValue: 50,
+                toValue: 24,
                 duration: 300,
                 useNativeDriver: false,
-            }),
-            Animated.timing(animatedButtonY, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
             }),
         ]).start();
     };
 
-    return (
-        <View
-            style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                position: 'absolute',
-                left: 0,
-                bottom: 0,
-                maxHeight: 100,
-                padding: 5,
-                width,
-            }}
-        >
-            {isRecording ? (
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: 'white',
-                        borderRadius: 25,
-                        elevation: 2,
-                        width: 200,
-                        flex: 1,
-                        paddingHorizontal: 10,
-                        height: 50,
-                    }}
-                >
-                    <MaterialIcons name="cancel" size={24} color="red" onPress={stopRecording} />
-                    <Text
-                        style={{
-                            flex: 1,
-                            textAlign: 'center',
-                            paddingHorizontal: 10,
-                        }}
-                    >
-                        {`0:${recordingDuration.toString().padStart(2, '0')}`}
-                    </Text>
-                </View>
-            ) : (
-                <TextInput
-                    value={value}
-                    onChangeText={text => setValue(text)}
-                    style={{
-                        backgroundColor: 'white',
-                        borderRadius: 25,
-                        elevation: 2,
-                        flex: 1,
-                        paddingHorizontal: 10,
-                        width: width - 60,
-                        height: 50,
-                    }}
-                    placeholder="Enter message..."
-                />
-            )}
+    const sendTextMessage = () => {
+        if (value.trim().length > 0) {
+            onSend([{ _id: Math.random(), text: value, createdAt: new Date(), user: { _id: 1 } }]);
+            setValue('');
+        }
+    };
 
-            <Animated.View
-                style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: 'green',
-                    borderRadius: animatedButtonRadius,
-                    elevation: 2,
-                    width: animatedButtonWidth,
-                    height: animatedButtonHeight,
-                    marginLeft: 10,
-                    transform: [{ translateY: animatedButtonY }],
-                }}
-            >
+    return (
+        <View style={styles.container}>
+            <TextInput
+                value={value}
+                onChangeText={setValue}
+                placeholder="Enter message..."
+                style={styles.input}
+                onSubmitEditing={sendTextMessage}
+            />
+            <Animated.View style={[styles.button, {
+                width: animatedButtonWidth,
+                height: animatedButtonHeight,
+                borderRadius: animatedButtonRadius,
+            }]}>
                 <TouchableOpacity
-                    onLongPress={() => {
-                        // Only start recording if not already recording and no text is entered
-                        if (!isRecording && value.trim().length === 0) {
-                            startRecording();
-                        }
-                    }}
-                    onPressOut={() => {
-                        // Stop recording when the button press is released
-                        if (isRecording) {
-                            stopRecording();
-                        }
-                    }}
-                    style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%',
-                        height: '100%',
-                    }}
+                    onLongPress={startRecording}
+                    onPressOut={stopRecording}
+                    onPress={sendTextMessage}
+                    style={styles.touchable}
                 >
                     {value.trim().length > 0 ? (
                         <Animated.View style={{ transform: [{ scale: animatedSendScale }] }}>
@@ -243,3 +165,33 @@ export default function CommentInput() {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        backgroundColor: '#fff',
+    },
+    input: {
+        flex: 1,
+        marginRight: 10,
+        paddingHorizontal: 10,
+        height: 50,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 25,
+    },
+    button: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'green',
+        padding: 10,
+    },
+    touchable: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+    },
+});
